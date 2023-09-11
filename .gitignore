@@ -1,0 +1,8 @@
+bin/
+obj/
+../.idea
+analysislevel_6_default.editorconfig
+appsettings.json
+appsettings.Development.json
+
+
