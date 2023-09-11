@@ -1,7 +1,5 @@
-using market_place.Migrations;
 using market_place.Models.Dto;
 using market_place.Services;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Category = market_place.Models.Category;
 

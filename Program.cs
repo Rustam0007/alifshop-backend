@@ -15,8 +15,12 @@ builder.Services.AddDbContext<DatabaseContext>(optionsBuilder => optionsBuilder
     .UseNpgsql(builder.Configuration.GetConnectionString("DBConnectionString")));
 
 builder.Services.AddTransient<IBaseRepository, BaseRepository>();
+
 builder.Services.AddTransient<CategoryRepository>();
+builder.Services.AddTransient<SubCategoryRepository>();
+
 builder.Services.AddScoped<CategoryService>();
+builder.Services.AddScoped<SubCategoryService>();
 
 
 var app = builder.Build();
