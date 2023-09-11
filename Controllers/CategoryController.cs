@@ -22,7 +22,7 @@ public class CategoryController : ControllerBase
     {
         return await _categoryService.GetAllCategoryAsync();
     }
-    [HttpGet("{id}")]
+    [HttpGet("{id:int}")]
     public async Task<Response<Category>> GetCategoryById(int id)
     {
         return await _categoryService.GetCategoryByIdAsync(id);
@@ -31,5 +31,15 @@ public class CategoryController : ControllerBase
     public async Task<Response<CategoryCreateRes>> InsertCategory([FromBody] CategoryCreateReq req)
     {
         return await _categoryService.InsertCategoryAsync(req);
+    }
+    [HttpPatch]
+    public async Task<Response<CategoryUpdateRes>> InsertCategory([FromBody] CategoryUpdateReq req)
+    {
+        return await _categoryService.UpdateCategoryAsync(req);
+    }
+    [HttpDelete("{id:int}")]
+    public async Task<Response<CategoryDeleteRes>> DeleteCategory(int id)
+    {
+        return await _categoryService.DeleteCategoryAsync(id);
     }
 }

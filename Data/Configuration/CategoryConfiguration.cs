@@ -11,6 +11,6 @@ public class CategoryConfiguration : IEntityTypeConfiguration<Category>
         // builder.ToTable("Category");
 
         builder.Property(x => x.Id).ValueGeneratedOnAdd();
-        builder.Property(x => x.CategoryName).IsRequired();
+        builder.Property(x => x.Name).IsRequired();
     }
 }

@@ -1,4 +1,5 @@
-﻿using market_place.Enums;
+﻿using market_place.Data;
+using market_place.Enums;
 using market_place.Models;
 using market_place.Models.Dto;
 using market_place.Repository;
@@ -7,12 +8,14 @@ namespace market_place.Services;
 public class CategoryService
 {
     private readonly CategoryRepository _repository;
+    private readonly DatabaseContext _context;
     private readonly ILogger _logger;
     
-    public CategoryService(CategoryRepository repository, ILoggerFactory loggerFactory)
+    public CategoryService(CategoryRepository repository, ILoggerFactory loggerFactory, DatabaseContext context)
     {
         _logger = loggerFactory.CreateLogger(GetType().Name);
         _repository = repository;
+        _context = context;
     }
 
     public async Task<Response<IEnumerable<Category>>> GetAllCategoryAsync()
@@ -46,7 +49,7 @@ public class CategoryService
             response.Payload = new Category()
             {
                 Id = category.Id,
-                CategoryName = category.CategoryName
+                Name = category.Name
             };
         }
         catch (Exception e)
@@ -64,7 +67,8 @@ public class CategoryService
         {
             var category = new Category
             {
-                CategoryName = req.Name
+                Name = req.Name,
+                IsDeleted = false
             };
             await _repository.InsertAsync(category);
 
@@ -73,7 +77,7 @@ public class CategoryService
             response.Payload = new CategoryCreateRes()
             {
                 Id = category.Id,
-                Name = category.CategoryName
+                Name = category.Name
             };
         }
         catch (Exception e)
@@ -81,6 +85,60 @@ public class CategoryService
             response.Code = (int) Errors.InternalError;
             response.Message = Errors.InternalError.GetDescription();
             _logger.LogError(e, "Failed to insert category");
+        }
+        return response;
+    }
+    public async Task<Response<CategoryUpdateRes>> UpdateCategoryAsync(CategoryUpdateReq req)
+    {
+        var response = new Response<CategoryUpdateRes>();
+        try
+        {
+            var category = await _repository.GetByIdAsync<Category>(req.Id);
+            var prevName = category.Name;
+            category.Name = req.Name;
+            await _repository.UpdateAsync(category);
+
+            response.Code = (int) Errors.Approved;
+            response.Message = Errors.Approved.GetDescription();
+            response.Payload = new CategoryUpdateRes()
+            {
+                Id = category.Id,
+                PrevName = prevName,
+                NewName = category.Name
+            };
+        }
+        catch (Exception e)
+        {
+            response.Code = (int) Errors.InternalError;
+            response.Message = Errors.InternalError.GetDescription();
+            _logger.LogError(e, "Failed to update category");
+        }
+        return response;
+    }
+    public async Task<Response<CategoryDeleteRes>> DeleteCategoryAsync(int id)
+    {
+        var response = new Response<CategoryDeleteRes>();
+        try
+        {
+            var category = await _repository.GetByIdAsync<Category>(id);
+            category.IsDeleted = true;
+            var res = await _context.SaveChangesAsync() > 0;
+
+            if (res)
+            {
+                response.Code = (int) Errors.Approved;
+                response.Message = Errors.Approved.GetDescription();
+                response.Payload = new CategoryDeleteRes
+                {
+                    Id = category.Id,
+                };
+            }
+        }
+        catch (Exception e)
+        {
+            response.Code = (int) Errors.InternalError;
+            response.Message = Errors.InternalError.GetDescription();
+            _logger.LogError(e, "Failed to delete category");
         }
         return response;
     }
