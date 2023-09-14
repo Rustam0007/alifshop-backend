@@ -8,22 +8,19 @@ namespace market_place.Services;
 public class CategoryService
 {
     private readonly CategoryRepository _repository;
-    private readonly DatabaseContext _context;
     private readonly ILogger _logger;
     
-    public CategoryService(CategoryRepository repository, ILoggerFactory loggerFactory, DatabaseContext context)
+    public CategoryService(CategoryRepository repository, ILoggerFactory loggerFactory)
     {
         _logger = loggerFactory.CreateLogger(GetType().Name);
         _repository = repository;
-        _context = context;
     }
-
     public async Task<Response<IEnumerable<Category>>> GetAllCategoryAsync()
     {
         var response = new Response<IEnumerable<Category>>();
         try
         {
-            var categories = await _repository.GetAllAsync<Category>();
+            var categories = (await _repository.GetAllAsync<Category>()).ToList();
             
             response.Code = (int) Errors.Approved;
             response.Message = Errors.Approved.GetDescription();
@@ -46,7 +43,7 @@ public class CategoryService
 
             response.Code = (int) Errors.Approved;
             response.Message = Errors.Approved.GetDescription();
-            response.Payload = new Category()
+            response.Payload = new Category
             {
                 Id = category.Id,
                 Name = category.Name
@@ -68,16 +65,18 @@ public class CategoryService
             var category = new Category
             {
                 Name = req.Name,
+                ParentCategoryId = req.ParentCategoryId,
                 IsDeleted = false
             };
             await _repository.InsertAsync(category);
 
             response.Code = (int) Errors.Approved;
             response.Message = Errors.Approved.GetDescription();
-            response.Payload = new CategoryCreateRes()
+            response.Payload = new CategoryCreateRes
             {
                 Id = category.Id,
-                Name = category.Name
+                Name = category.Name,
+                ParentCategoryId = category.ParentCategoryId
             };
         }
         catch (Exception e)
@@ -100,7 +99,7 @@ public class CategoryService
 
             response.Code = (int) Errors.Approved;
             response.Message = Errors.Approved.GetDescription();
-            response.Payload = new CategoryUpdateRes()
+            response.Payload = new CategoryUpdateRes
             {
                 Id = category.Id,
                 PrevName = prevName,
@@ -122,17 +121,14 @@ public class CategoryService
         {
             var category = await _repository.GetByIdAsync<Category>(id);
             category.IsDeleted = true;
-            var res = await _context.SaveChangesAsync() > 0;
-
-            if (res)
+            await _repository.SaveChangesAsync();
+            
+            response.Code = (int) Errors.Approved;
+            response.Message = Errors.Approved.GetDescription();
+            response.Payload = new CategoryDeleteRes
             {
-                response.Code = (int) Errors.Approved;
-                response.Message = Errors.Approved.GetDescription();
-                response.Payload = new CategoryDeleteRes
-                {
-                    Id = category.Id,
-                };
-            }
+                Id = category.Id,
+            };
         }
         catch (Exception e)
         {

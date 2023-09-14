@@ -11,10 +11,4 @@ public class CategoryRepository : BaseRepository, ICategoryRepository
     {
         // _context = context;
     }
-    
-    // public async Task<bool> DeleteCategoryAsync<T>(T entity) where T : class
-    // {
-    //     _context.Set<T>().Remove(entity);
-    //     return await _context.SaveChangesAsync() > 0;
-    // }
 }

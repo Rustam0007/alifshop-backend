@@ -6,7 +6,6 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -18,10 +17,13 @@ builder.Services.AddTransient<IBaseRepository, BaseRepository>();
 
 builder.Services.AddTransient<CategoryRepository>();
 builder.Services.AddTransient<SubCategoryRepository>();
+builder.Services.AddTransient<StoreRepository>();
+builder.Services.AddTransient<ProductRepository>();
 
 builder.Services.AddScoped<CategoryService>();
 builder.Services.AddScoped<SubCategoryService>();
-
+builder.Services.AddScoped<StoreService>();
+builder.Services.AddScoped<ProductService>();
 
 var app = builder.Build();
 

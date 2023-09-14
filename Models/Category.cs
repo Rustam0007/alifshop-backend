@@ -1,8 +1,13 @@
-﻿namespace market_place.Models;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 
-public sealed class Category
+namespace market_place.Models;
+
+public sealed class Category : BaseEntity
 {
-    public int Id { get; set; }
     public string Name { get; set; }
     public bool IsDeleted { get; set; }
+    public int ParentCategoryId { get; set; }
+    
+    public ICollection<Product> Products { get; set; }
 }
+

@@ -1,17 +1,28 @@
 ﻿using market_place.Data;
+using market_place.Models;
 using market_place.Repository.Interface;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 
 namespace market_place.Repository;
 
-public class BaseRepository : IBaseRepository
+public class BaseRepository : UnitOfWork, IBaseRepository
 {
     private readonly DatabaseContext _context;
 
-    public BaseRepository(DatabaseContext context)
+    public BaseRepository(DatabaseContext context) : base(context)
     {
         _context = context;
+    }
+    
+    public override async Task<int> SaveChangesAsync()
+    {
+        return await _context.SaveChangesAsync();
+    }
+
+    public async Task<bool> ExistsAsync<T>(int id) where T : BaseEntity
+    {
+        return await _context.Set<T>().AnyAsync(x => x.Id == id);
     }
 
     public async Task<IEnumerable<T>> GetAllAsync<T>() where T : class

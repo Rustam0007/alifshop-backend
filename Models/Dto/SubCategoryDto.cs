@@ -3,17 +3,23 @@
 public class SubCategoryCreateReq
 {
     public string Name { get; set; }
+    public int CategoryId { get; set; }
+
 }
 public class SubCategoryCreateRes
 {
     public int Id { get; set; }
     public string Name { get; set; }
+    public int CategoryId { get; set; }
+
 }
 
 public class SubCategoryUpdateReq
 {
     public int Id { get; set; }
     public string Name { get; set; }
+    public int CategoryId { get; set; }
+
 }
 
 public class SubCategoryUpdateRes
