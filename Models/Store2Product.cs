@@ -1,9 +1,7 @@
 ﻿namespace market_place.Models;
 
-public class Store2Product
+public sealed class Store2Product : BaseEntity
 {
-    public int Id { get; set; }
-    
     public int StoreId { get; set; }
     public Store Store { get; set; }
     

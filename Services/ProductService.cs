@@ -34,12 +34,12 @@ public class ProductService
         }
         return response;
     }
-    public async Task<Response<IEnumerable<Product>>> GetAllProductByCategoryId(int categoryId)
+    public async Task<Response<IEnumerable<Product>>> GetAllProductBySubCategoryId(int categoryId)
     {
         var response = new Response<IEnumerable<Product>>();
         try
         {
-            var products = await _repository.GetProductByCategoryId(categoryId);
+            var products = await _repository.GetProductBySubCategoryId(categoryId);
             
             response.Code = (int) Errors.Approved;
             response.Message = Errors.Approved.GetDescription();
@@ -108,7 +108,7 @@ public class ProductService
                 Description = product.Description,
                 Colors = product.Colors,
                 Price = product.Price,
-                CategoryId = product.CategoryId
+                SubCategoryId = product.SubCategoryId
             };
         }
         catch (Exception e)
@@ -130,11 +130,16 @@ public class ProductService
                 Description = req.Description,
                 Colors = req.Colors,
                 Price = req.Price,
-                CategoryId = req.CategoryId,
+                SubCategoryId = req.SubCategoryId,
                 IsDeleted = false
             };
             
-            await _repository.InsertAsync(product);
+            var productId = await _repository.InsertAsync(product);
+            await _repository.InsertAsync(new Store2Product
+            {
+                StoreId = req.StoreId,
+                ProductId = productId
+            });
             
             response.Code = (int) Errors.Approved;
             response.Message = Errors.Approved.GetDescription();
@@ -161,7 +166,7 @@ public class ProductService
             product.Description = req.Description;
             product.Colors = req.Colors;
             product.Price = req.Price;
-            product.CategoryId = req.CategoryId;
+            product.SubCategoryId = req.CategoryId;
             
             await _repository.UpdateAsync(product);
 

@@ -1,6 +1,6 @@
 ﻿namespace market_place.Models.Dto;
 
-public class StoreCreateReq
+public sealed class StoreCreateReq
 {
     public string Name { get; set; }
     public double Latitude { get; set; }
@@ -10,12 +10,12 @@ public class StoreCreateReq
     public string Image { get; set; }
 }
 
-public class StoreCreateRes
+public sealed class StoreCreateRes
 {
     public int Id { get; set; }
 }
 
-public class StoreUpdateReq
+public sealed class StoreUpdateReq
 {
     public int Id { get; set; }
     public string Name { get; set; }
@@ -27,12 +27,12 @@ public class StoreUpdateReq
 
 }
 
-public class StoreUpdateRes
+public sealed class StoreUpdateRes
 {
     public int Id { get; set; }
 }
 
-public class StoreDeleteRes
+public sealed class StoreDeleteRes
 {
     public int Id { get; set; }
 }

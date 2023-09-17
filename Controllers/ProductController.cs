@@ -21,10 +21,10 @@ public class ProductController : ControllerBase
     {
         return await _productService.GetAllProductAsync();
     }
-    [HttpGet("by-category/{categoryId:int}")]
-    public async Task<Response<IEnumerable<Product>>> GetProductByCategoryId(int categoryId)
+    [HttpGet("by-subCategory/{subCategoryId:int}")]
+    public async Task<Response<IEnumerable<Product>>> GetProductBySubCategoryId(int subCategoryId)
     {
-        return await _productService.GetAllProductByCategoryId(categoryId);
+        return await _productService.GetAllProductBySubCategoryId(subCategoryId);
     }
     [HttpGet("by-store/{storeId:int}")]
     public async Task<Response<IEnumerable<Product>>> GetProductByStoreId(int storeId)

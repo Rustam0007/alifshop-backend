@@ -35,10 +35,11 @@ public class BaseRepository : UnitOfWork, IBaseRepository
         return await _context.Set<T>().FindAsync(id);
     }
 
-    public async Task<bool> InsertAsync<T>(T entity) where T : class
+    public async Task<int> InsertAsync<T>(T entity) where T : BaseEntity
     {
-        await _context.Set<T>().AddAsync(entity);
-        return await _context.SaveChangesAsync() > 0;
+        var res = await _context.Set<T>().AddAsync(entity);
+        await _context.SaveChangesAsync();
+        return res.Entity.Id;
     }
 
     public async Task<bool> UpdateAsync<T>(T entity) where T : class

@@ -15,6 +15,6 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
         builder.Property(x => x.Colors).IsRequired();
         builder.Property(x => x.Description).IsRequired();
         builder.Property(x => x.Price).IsRequired();
-        builder.Property(x => x.CategoryId).IsRequired();
+        builder.Property(x => x.SubCategoryId).IsRequired();
     }
 }

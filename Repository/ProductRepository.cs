@@ -14,9 +14,9 @@ public class ProductRepository : BaseRepository, IProductRepository
         _context = context;
     }
     
-    public async Task<List<Product>> GetProductByCategoryId(int categoryId)
+    public async Task<List<Product>> GetProductBySubCategoryId(int categoryId)
     {
-        return await _context.Product.Where(p => p.CategoryId == categoryId).ToListAsync();
+        return await _context.Product.Where(p => p.SubCategoryId == categoryId).ToListAsync();
     }
 
     public async Task<List<Product>> GetProductByStoreId(int storeId)
@@ -26,6 +26,6 @@ public class ProductRepository : BaseRepository, IProductRepository
 
     public async Task<List<Product>> GetProductByName(string name)
     {
-        return await _context.Product.Where(p => p.Name.Contains(name)).ToListAsync();
+        return await _context.Product.Where(p => p.Name.ToLower().Contains(name)).ToListAsync();
     }
 }

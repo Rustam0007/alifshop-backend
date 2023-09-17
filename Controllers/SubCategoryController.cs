@@ -24,6 +24,11 @@ public class SubCategoryController : ControllerBase
     {
         return await _subCategoryService.GetSubCategoryByIdAsync(id);
     }
+    [HttpGet("by-categoryId/{id:int}")]
+    public async Task<Response<List<SubCategory>>> GetSubCategoryByCategoryId(int id)
+    {
+        return await _subCategoryService.GetSubCategoryByCategoryIdAsync(id);
+    }
     [HttpPost]
     public async Task<Response<SubCategoryCreateRes>> InsertSubCategory([FromBody] SubCategoryCreateReq req)
     {

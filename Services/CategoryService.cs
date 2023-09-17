@@ -1,5 +1,4 @@
-﻿using market_place.Data;
-using market_place.Enums;
+﻿using market_place.Enums;
 using market_place.Models;
 using market_place.Models.Dto;
 using market_place.Repository;
@@ -65,7 +64,6 @@ public class CategoryService
             var category = new Category
             {
                 Name = req.Name,
-                ParentCategoryId = req.ParentCategoryId,
                 IsDeleted = false
             };
             await _repository.InsertAsync(category);
@@ -75,8 +73,7 @@ public class CategoryService
             response.Payload = new CategoryCreateRes
             {
                 Id = category.Id,
-                Name = category.Name,
-                ParentCategoryId = category.ParentCategoryId
+                Name = category.Name
             };
         }
         catch (Exception e)

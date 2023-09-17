@@ -1,5 +1,4 @@
-﻿using market_place.Data;
-using market_place.Enums;
+﻿using market_place.Enums;
 using market_place.Models;
 using market_place.Models.Dto;
 using market_place.Repository;
@@ -48,8 +47,28 @@ public class SubCategoryService
             response.Payload = new SubCategory
             {
                 Id = category.Id,
-                Name = category.Name
+                Name = category.Name,
+                CategoryId = category.CategoryId
             };
+        }
+        catch (Exception e)
+        {
+            response.Code = (int) Errors.InternalError;
+            response.Message = Errors.InternalError.GetDescription();
+            _logger.LogError(e, "Failed to get Subcategory");
+        }
+        return response;
+    }
+    public async Task<Response<List<SubCategory>>> GetSubCategoryByCategoryIdAsync(int id)
+    {
+        var response = new Response<List<SubCategory>>();
+        try
+        {
+            var subCategory = await _repository.GetSubCategoryByCategoryId(id);
+
+            response.Code = (int) Errors.Approved;
+            response.Message = Errors.Approved.GetDescription();
+            response.Payload = subCategory;
         }
         catch (Exception e)
         {
