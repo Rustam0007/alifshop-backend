@@ -4,15 +4,18 @@ using Microsoft.EntityFrameworkCore;
 
 namespace market_place.Data;
 
-public class DatabaseContext : DbContext
+public sealed class DatabaseContext : DbContext
 {
     public DbSet<Category> Category { get; set; }
     public DbSet<SubCategory> SubCategory { get; set; }
     public DbSet<Product> Product { get; set; }
     public DbSet<Store> Store { get; set; }
     public DbSet<Store2Product> Store2Product { get; set; }
-    
-    public DatabaseContext(DbContextOptions<DatabaseContext> options) : base (options){}
+
+    public DatabaseContext(DbContextOptions<DatabaseContext> options) : base(options)
+    {
+        Database.EnsureCreated();
+    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
