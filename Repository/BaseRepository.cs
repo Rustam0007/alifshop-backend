@@ -20,17 +20,12 @@ public class BaseRepository : UnitOfWork, IBaseRepository
         return await _context.SaveChangesAsync();
     }
 
-    public async Task<bool> ExistsAsync<T>(int id) where T : BaseEntity
-    {
-        return await _context.Set<T>().AnyAsync(x => x.Id == id);
-    }
-
     public async Task<IEnumerable<T>> GetAllAsync<T>() where T : class
     {
         return await _context.Set<T>().ToListAsync();
     }
 
-    public async Task<T> GetByIdAsync<T>(int id) where T : class
+    public async Task<T?> GetByIdAsync<T>(int id) where T : class
     {
         return await _context.Set<T>().FindAsync(id);
     }

@@ -40,6 +40,13 @@ public class CategoryService
         {
             var category = await _repository.GetByIdAsync<Category>(id);
 
+            if (category == null)
+            {
+                response.Code = (int) Errors.NotFound;
+                response.Message = Errors.NotFound.GetDescription();
+                return response;
+            }
+            
             response.Code = (int) Errors.Approved;
             response.Message = Errors.Approved.GetDescription();
             response.Payload = new Category
