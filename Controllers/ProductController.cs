@@ -2,7 +2,6 @@ using market_place.Models;
 using market_place.Models.Dto;
 using market_place.Services;
 using Microsoft.AspNetCore.Mvc;
-using Product = market_place.Models.Product;
 
 namespace market_place.Controllers;
 
@@ -17,43 +16,50 @@ public class ProductController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<Response<IEnumerable<Product>>> GetAllProduct()
+    public IAsyncEnumerable<ProductInfo> GetAllProduct(CancellationToken token)
     {
-        return await _productService.GetAllProductAsync();
+        return _productService.GetAllProductAsync(token);
     }
+    
     [HttpGet("by-subCategory/{subCategoryId:int}")]
-    public async Task<Response<IEnumerable<Product>>> GetProductBySubCategoryId(int subCategoryId)
+    public Task<IEnumerable<Product>> GetProductBySubCategoryId(int subCategoryId)
     {
-        return await _productService.GetAllProductBySubCategoryId(subCategoryId);
+        return _productService.GetAllProductBySubCategoryId(subCategoryId);
     }
+    
     [HttpGet("by-store/{storeId:int}")]
-    public async Task<Response<IEnumerable<Product>>> GetProductByStoreId(int storeId)
+    public Task<IEnumerable<Product>> GetProductByStoreId(int storeId)
     {
-        return await _productService.GetAllProductByStoreId(storeId);
+        return _productService.GetAllProductByStoreId(storeId);
     }
+    
     [HttpGet("by-name/{name}")]
-    public async Task<Response<IEnumerable<Product>>> GetProductByName(string name)
+    public Task<IEnumerable<Product>> GetProductByName(string name)
     {
-        return await _productService.GetAllProductByName(name);
+        return _productService.GetAllProductByName(name);
     }
+    
     [HttpGet("{id:int}")]
-    public async Task<Response<Product>> GetProductById(int id)
+    public Task<ProductInfo> GetProductById(int id)
     {
-        return await _productService.GetProductByIdAsync(id);
+        return _productService.GetProductByIdAsync(id);
     }
+    
     [HttpPost]
-    public async Task<Response<ProductCreateRes>> InsertProduct([FromBody] ProductCreateReq req)
+    public Task<ProductCreateRes> InsertProduct([FromBody] ProductCreateReq req, CancellationToken token)
     {
-        return await _productService.InsertProductAsync(req);
+        return _productService.InsertProductAsync(req, token);
     }
+    
     [HttpPatch]
-    public async Task<Response<ProductUpdateRes>> InsertProduct([FromBody] ProductUpdateReq req)
+    public Task<ProductUpdateRes> InsertProduct([FromBody] ProductUpdateReq req, CancellationToken token)
     {
-        return await _productService.UpdateProductAsync(req);
+        return _productService.UpdateProductAsync(req, token);
     }
+    
     [HttpDelete("{id:int}")]
-    public async Task<Response<ProductDeleteRes>> DeleteProduct(int id)
+    public Task<ProductDeleteRes> DeleteProduct(int id, CancellationToken token)
     {
-        return await _productService.DeleteProductAsync(id);
+        return _productService.DeleteProductAsync(id, token);
     }
 }

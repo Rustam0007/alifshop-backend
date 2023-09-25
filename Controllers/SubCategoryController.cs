@@ -15,33 +15,34 @@ public class SubCategoryController : ControllerBase
         _subCategoryService = subCategoryService;
     }
     [HttpGet]
-    public async Task<Response<IEnumerable<SubCategory>>> GetAllSubCategory()
+    public IAsyncEnumerable<SubCategoryInfo> GetAllSubCategory()
     {
-        return await _subCategoryService.GetAllSubCategoryAsync();
+        return _subCategoryService.GetAllSubCategoryAsync();
     }
     [HttpGet("{id:int}")]
-    public async Task<Response<SubCategory>> GetSubCategoryById(int id)
+    public Task<SubCategoryInfo> GetSubCategoryById(int id)
     {
-        return await _subCategoryService.GetSubCategoryByIdAsync(id);
+        return _subCategoryService.GetSubCategoryByIdAsync(id);
     }
+    
     [HttpGet("by-categoryId/{id:int}")]
-    public async Task<Response<List<SubCategory>>> GetSubCategoryByCategoryId(int id)
+    public Task<List<SubCategory>> GetSubCategoryByCategoryId(int id)
     {
-        return await _subCategoryService.GetSubCategoryByCategoryIdAsync(id);
+        return _subCategoryService.GetSubCategoryByCategoryIdAsync(id);
     }
     [HttpPost]
-    public async Task<Response<SubCategoryCreateRes>> InsertSubCategory([FromBody] SubCategoryCreateReq req)
+    public Task<SubCategoryCreateRes> InsertSubCategory([FromBody] SubCategoryCreateReq req)
     {
-        return await _subCategoryService.InsertSubCategoryAsync(req);
+        return _subCategoryService.InsertSubCategoryAsync(req);
     }
     [HttpPatch]
-    public async Task<Response<SubCategoryUpdateRes>> UpdateSubCategory([FromBody] SubCategoryUpdateReq req)
+    public Task<SubCategoryUpdateRes> UpdateSubCategory([FromBody] SubCategoryUpdateReq req)
     {
-        return await _subCategoryService.UpdateSubCategoryAsync(req);
+        return _subCategoryService.UpdateSubCategoryAsync(req);
     }
     [HttpDelete("{id:int}")]
-    public async Task<Response<SubCategoryDeleteRes>> DeleteSubCategory(int id)
+    public Task<SubCategoryDeleteRes> DeleteSubCategory(int id)
     {
-        return await _subCategoryService.DeleteSubCategoryAsync(id);
+        return _subCategoryService.DeleteSubCategoryAsync(id);
     }
 }

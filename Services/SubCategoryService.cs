@@ -1,4 +1,6 @@
-﻿using market_place.Enums;
+﻿using System.Runtime.CompilerServices;
+using market_place.Enums;
+using market_place.Extensions;
 using market_place.Models;
 using market_place.Models.Dto;
 using market_place.Repository;
@@ -15,148 +17,62 @@ public class SubCategoryService
         _logger = loggerFactory.CreateLogger(GetType().Name);
         _repository = repository;
     }
-
-    public async Task<Response<IEnumerable<SubCategory>>> GetAllSubCategoryAsync()
+    public async IAsyncEnumerable<SubCategoryInfo> GetAllSubCategoryAsync([EnumeratorCancellation] CancellationToken token = default)
     {
-        var response = new Response<IEnumerable<SubCategory>>();
-        try
+        await foreach (var subCategory in _repository.GetAllAsync())
         {
-            var categories = await _repository.GetAllAsync<SubCategory>();
-            
-            response.Code = (int) Errors.Approved;
-            response.Message = Errors.Approved.GetDescription();
-            response.Payload = categories;
+            token.ThrowIfCancellationRequested();
+            yield return subCategory.ToSubCategoryInfo();
         }
-        catch (Exception e)
-        {
-            response.Code = (int) Errors.InternalError;
-            response.Message = Errors.InternalError.GetDescription();
-            _logger.LogError(e, "Failed to get Subcategory");
-        }
-        return response;
     }
-    public async Task<Response<SubCategory>> GetSubCategoryByIdAsync(int id)
+    public async Task<SubCategoryInfo> GetSubCategoryByIdAsync(int id, CancellationToken token = default)
     {
-        var response = new Response<SubCategory>();
-        try
-        {
-            var category = await _repository.GetByIdAsync<SubCategory>(id);
-
-            response.Code = (int) Errors.Approved;
-            response.Message = Errors.Approved.GetDescription();
-            response.Payload = new SubCategory
-            {
-                Id = category.Id,
-                Name = category.Name,
-                CategoryId = category.CategoryId
-            };
-        }
-        catch (Exception e)
-        {
-            response.Code = (int) Errors.InternalError;
-            response.Message = Errors.InternalError.GetDescription();
-            _logger.LogError(e, "Failed to get Subcategory");
-        }
-        return response;
+        var subCategory = await _repository.GetByIdAsync(id, token);
+        return subCategory.ToSubCategoryInfo();
     }
-    public async Task<Response<List<SubCategory>>> GetSubCategoryByCategoryIdAsync(int id)
+    
+    public async Task<List<SubCategory>> GetSubCategoryByCategoryIdAsync(int id, CancellationToken token = default)
     {
-        var response = new Response<List<SubCategory>>();
-        try
-        {
-            var subCategory = await _repository.GetSubCategoryByCategoryId(id);
-
-            response.Code = (int) Errors.Approved;
-            response.Message = Errors.Approved.GetDescription();
-            response.Payload = subCategory;
-        }
-        catch (Exception e)
-        {
-            response.Code = (int) Errors.InternalError;
-            response.Message = Errors.InternalError.GetDescription();
-            _logger.LogError(e, "Failed to get Subcategory");
-        }
-        return response;
+        var subCategory = await _repository.GetSubCategoryByCategoryId(id, token);
+        return subCategory;
     }
-    public async Task<Response<SubCategoryCreateRes>> InsertSubCategoryAsync(SubCategoryCreateReq req)
+    
+    public async Task<SubCategoryCreateRes> InsertSubCategoryAsync(SubCategoryCreateReq req, CancellationToken token = default)
     {
-        var response = new Response<SubCategoryCreateRes>();
-        try
-        {
-            var category = new SubCategory
-            {
-                Name = req.Name,
-                CategoryId = req.CategoryId
-            };
-            await _repository.InsertAsync(category);
+        
+        var subCategory = req.ToSubCategory();
+        
+        await _repository.InsertAsync(subCategory, token);
 
-            response.Code = (int) Errors.Approved;
-            response.Message = Errors.Approved.GetDescription();
-            response.Payload = new SubCategoryCreateRes
-            {
-                Id = category.Id,
-                Name = category.Name,
-                CategoryId = category.CategoryId
-            };
-        }
-        catch (Exception e)
+        return new ()
         {
-            response.Code = (int) Errors.InternalError;
-            response.Message = Errors.InternalError.GetDescription();
-            _logger.LogError(e, "Failed to insert Subcategory");
-        }
-        return response;
+            Id = subCategory.Id
+        };
     }
-    public async Task<Response<SubCategoryUpdateRes>> UpdateSubCategoryAsync(SubCategoryUpdateReq req)
+    public async Task<SubCategoryUpdateRes> UpdateSubCategoryAsync(SubCategoryUpdateReq req, CancellationToken token = default)
     {
-        var response = new Response<SubCategoryUpdateRes>();
-        try
-        {
-            var category = await _repository.GetByIdAsync<SubCategory>(req.Id);
-            var prevName = category.Name;
-            category.Name = req.Name;
-            category.CategoryId = req.CategoryId;
-            await _repository.UpdateAsync(category);
+        
+        var subCategory = await _repository.GetByIdAsync(req.Id, token);
+        var prevName = subCategory.Name;
+        subCategory.Name = req.Name;
+        await _repository.UpdateAsync(subCategory, token);
 
-            response.Code = (int) Errors.Approved;
-            response.Message = Errors.Approved.GetDescription();
-            response.Payload = new SubCategoryUpdateRes
-            {
-                Id = category.Id,
-                PrevName = prevName,
-                NewName = category.Name
-            };
-        }
-        catch (Exception e)
+        return new()
         {
-            response.Code = (int) Errors.InternalError;
-            response.Message = Errors.InternalError.GetDescription();
-            _logger.LogError(e, "Failed to update Subcategory");
-        }
-        return response;
+            Id = subCategory.Id,
+            PrevName = prevName,
+            NewName = subCategory.Name
+        };
     }
-    public async Task<Response<SubCategoryDeleteRes>> DeleteSubCategoryAsync(int id)
+    public async Task<SubCategoryDeleteRes> DeleteSubCategoryAsync(int id, CancellationToken token = default)
     {
-        var response = new Response<SubCategoryDeleteRes>();
-        try
-        {
-            var category = await _repository.GetByIdAsync<SubCategory>(id);
-            category.IsDeleted = true;
-            var res = await _repository.SaveChangesAsync();
+        var subCategory = await _repository.GetByIdAsync(id, token);
+        subCategory.IsDeleted = true;
+        await _repository.SaveChangesAsync(token);
 
-            response.Code = (int) Errors.Approved;
-            response.Message = Errors.Approved.GetDescription();
-            response.Payload = new SubCategoryDeleteRes
-            {
-                Id = category.Id,
-            };
-        }
-        catch (Exception e)
+        return new()
         {
-            response.Code = (int) Errors.InternalError;
-            response.Message = Errors.InternalError.GetDescription();
-            _logger.LogError(e, "Failed to delete category");
-        }
-        return response;
+            Id = subCategory.Id,
+        };
     }
 }

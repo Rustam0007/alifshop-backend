@@ -1,4 +1,5 @@
-﻿using market_place.Enums;
+﻿using System.Runtime.CompilerServices;
+using market_place.Extensions;
 using market_place.Models;
 using market_place.Models.Dto;
 using market_place.Repository;
@@ -15,198 +16,68 @@ public class ProductService
         _repository = repository;
     }
 
-    public async Task<Response<IEnumerable<Product>>> GetAllProductAsync()
+    public async IAsyncEnumerable<ProductInfo> GetAllProductAsync([EnumeratorCancellation] CancellationToken token = default)
     {
-        var response = new Response<IEnumerable<Product>>();
-        try
+        await foreach (var product in _repository.GetAllAsync())
         {
-            var products = await _repository.GetAllAsync<Product>();
-            
-            response.Code = (int) Errors.Approved;
-            response.Message = Errors.Approved.GetDescription();
-            response.Payload = products;
+            token.ThrowIfCancellationRequested();
+            yield return product.ToProductInfo();
         }
-        catch (Exception e)
-        {
-            response.Code = (int) Errors.InternalError;
-            response.Message = Errors.InternalError.GetDescription();
-            _logger.LogError(e, "Failed to get Product");
-        }
-        return response;
     }
-    public async Task<Response<IEnumerable<Product>>> GetAllProductBySubCategoryId(int categoryId)
+    public async Task<IEnumerable<Product>> GetAllProductBySubCategoryId(int categoryId)
     {
-        var response = new Response<IEnumerable<Product>>();
-        try
-        {
-            var products = await _repository.GetProductBySubCategoryId(categoryId);
-            
-            response.Code = (int) Errors.Approved;
-            response.Message = Errors.Approved.GetDescription();
-            response.Payload = products;
-        }
-        catch (Exception e)
-        {
-            response.Code = (int) Errors.InternalError;
-            response.Message = Errors.InternalError.GetDescription();
-            _logger.LogError(e, "Failed to get Product");
-        }
-        return response;
-    }
-    public async Task<Response<IEnumerable<Product>>> GetAllProductByStoreId(int storeId)
-    {
-        var response = new Response<IEnumerable<Product>>();
-        try
-        {
-            var products = await _repository.GetProductByStoreId(storeId);
-            
-            response.Code = (int) Errors.Approved;
-            response.Message = Errors.Approved.GetDescription();
-            response.Payload = products;
-        }
-        catch (Exception e)
-        {
-            response.Code = (int) Errors.InternalError;
-            response.Message = Errors.InternalError.GetDescription();
-            _logger.LogError(e, "Failed to get Product");
-        }
-        return response;
-    }
-    public async Task<Response<IEnumerable<Product>>> GetAllProductByName(string productName)
-    {
-        var response = new Response<IEnumerable<Product>>();
-        try
-        {
-            var products = await _repository.GetProductByName(productName);
-            
-            response.Code = (int) Errors.Approved;
-            response.Message = Errors.Approved.GetDescription();
-            response.Payload = products;
-        }
-        catch (Exception e)
-        {
-            response.Code = (int) Errors.InternalError;
-            response.Message = Errors.InternalError.GetDescription();
-            _logger.LogError(e, "Failed to get Product");
-        }
-        return response;
-    }
-    public async Task<Response<Product>> GetProductByIdAsync(int id)
-    {
-        var response = new Response<Product>();
-        try
-        {
-            var product = await _repository.GetByIdAsync<Product>(id);
+       var products = await _repository.GetProductBySubCategoryId(categoryId);
+       return products;
 
-            response.Code = (int) Errors.Approved;
-            response.Message = Errors.Approved.GetDescription();
-            response.Payload = new Product
-            {
-                Id = product.Id,
-                Name = product.Name,
-                IsDeleted = product.IsDeleted,
-                Description = product.Description,
-                Colors = product.Colors,
-                Price = product.Price,
-                SubCategoryId = product.SubCategoryId
-            };
-        }
-        catch (Exception e)
-        {
-            response.Code = (int) Errors.InternalError;
-            response.Message = Errors.InternalError.GetDescription();
-            _logger.LogError(e, "Failed to get Product");
-        }
-        return response;
     }
-    public async Task<Response<ProductCreateRes>> InsertProductAsync(ProductCreateReq req)
+    public async Task<IEnumerable<Product>> GetAllProductByStoreId(int storeId)
     {
-        var response = new Response<ProductCreateRes>();
-        try
-        {
-            var product = new Product
-            {
-                Name = req.Name,
-                Description = req.Description,
-                Colors = req.Colors,
-                Price = req.Price,
-                SubCategoryId = req.SubCategoryId,
-                IsDeleted = false
-            };
-            
-            var productId = await _repository.InsertAsync(product);
-            await _repository.InsertAsync(new Store2Product
-            {
-                StoreId = req.StoreId,
-                ProductId = productId
-            });
-            
-            response.Code = (int) Errors.Approved;
-            response.Message = Errors.Approved.GetDescription();
-            response.Payload = new ProductCreateRes
-            {
-                Id = product.Id
-            };
-        }
-        catch (Exception e)
-        {
-            response.Code = (int) Errors.InternalError;
-            response.Message = Errors.InternalError.GetDescription();
-            _logger.LogError(e, "Failed to insert Product");
-        }
-        return response;
+       var products = await _repository.GetProductByStoreId(storeId);
+       return products;
     }
-    public async Task<Response<ProductUpdateRes>> UpdateProductAsync(ProductUpdateReq req)
+    public async Task<IEnumerable<Product>> GetAllProductByName(string productName)
     {
-        var response = new Response<ProductUpdateRes>();
-        try
-        {
-            var product = await _repository.GetByIdAsync<Product>(req.Id);
-            product.Name = req.Name;
-            product.Description = req.Description;
-            product.Colors = req.Colors;
-            product.Price = req.Price;
-            product.SubCategoryId = req.CategoryId;
-            
-            await _repository.UpdateAsync(product);
+        var products = await _repository.GetProductByName(productName);
+        return products;
+    }
+    public async Task<ProductInfo> GetProductByIdAsync(int id)
+    {
+        var product = await _repository.GetByIdAsync(id);
+        return product.ToProductInfo();
+    }
+    public async Task<ProductCreateRes> InsertProductAsync(ProductCreateReq req, CancellationToken token)
+    {
+        var product = req.ToProduct();
+        
+        await _repository.InsertAsync(product, token);
 
-            response.Code = (int) Errors.Approved;
-            response.Message = Errors.Approved.GetDescription();
-            response.Payload = new ProductUpdateRes
-            {
-                Id = product.Id
-            };
-        }
-        catch (Exception e)
+        return new ()
         {
-            response.Code = (int) Errors.InternalError;
-            response.Message = Errors.InternalError.GetDescription();
-            _logger.LogError(e, "Failed to update Product");
-        }
-        return response;
+            Id = product.Id
+        };
     }
-    public async Task<Response<ProductDeleteRes>> DeleteProductAsync(int id)
+    public async Task<ProductUpdateRes> UpdateProductAsync(ProductUpdateReq req, CancellationToken token)
     {
-        var response = new Response<ProductDeleteRes>();
-        try
+        var product = await _repository.GetByIdAsync(req.Id, token);
+        product.Name = req.Name;
+        product.Description = req.Description;
+        product.Colors = req.Colors;
+        product.Price = req.Price;
+        product.SubCategoryId = req.SubCategoryId;
+        
+       return new ()
         {
-            var product = await _repository.GetByIdAsync<Product>(id);
-            product.IsDeleted = true;
-            await _repository.SaveChangesAsync();
-            
-            response.Code = (int) Errors.Approved;
-            response.Message = Errors.Approved.GetDescription();
-            response.Payload = new ProductDeleteRes
-            {
-                Id = product.Id,
-            };
-        }
-        catch (Exception e)
+            Id = product.Id
+        };
+    }
+    public async Task<ProductDeleteRes> DeleteProductAsync(int id, CancellationToken token)
+    {
+        var product = await _repository.GetByIdAsync(id, token);
+        product.IsDeleted = true;
+        await _repository.SaveChangesAsync(token);
+        return new()
         {
-            response.Code = (int) Errors.InternalError;
-            response.Message = Errors.InternalError.GetDescription();
-            _logger.LogError(e, "Failed to delete Product");
-        }
-        return response;
+            Id = product.Id,
+        };
     }
 }

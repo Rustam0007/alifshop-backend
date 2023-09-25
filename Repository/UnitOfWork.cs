@@ -6,10 +6,10 @@ public abstract class UnitOfWork
 {
     private readonly DatabaseContext _context;
 
-    public UnitOfWork(DatabaseContext context)
+    protected UnitOfWork(DatabaseContext context)
     {
         _context = context;
     }
     
-    public abstract Task<int> SaveChangesAsync();
+    public abstract Task<int> SaveChangesAsync(CancellationToken token = default);
 }

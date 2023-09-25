@@ -1,30 +1,8 @@
 ﻿namespace market_place.Models.Dto;
 
-public sealed class CategoryCreateReq
-{
-    public string Name { get; set; }
-}
-public sealed class CategoryCreateRes
-{
-    public int Id { get; set; }
-    public string Name { get; set; }
-
-}
-
-public sealed class CategoryUpdateReq
-{
-    public int Id { get; set; }
-    public string Name { get; set; }
-}
-
-public sealed class CategoryUpdateRes
-{
-    public int Id { get; set; }
-    public string PrevName { get; set; }
-    public string NewName { get; set; }
-}
-
-public sealed class CategoryDeleteRes
-{
-    public int Id { get; set; }
-}
+public readonly record struct CategoryInfo(string Name, bool IsDeleted);
+public readonly record struct CategoryCreateReq(string Name);
+public readonly record struct CategoryCreateRes(int Id);
+public readonly record struct CategoryUpdateReq(int Id, string Name);
+public readonly record struct CategoryUpdateRes(int Id, string PrevName, string NewName);
+public readonly record struct CategoryDeleteRes(int Id);

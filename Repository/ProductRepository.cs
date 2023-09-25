@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace market_place.Repository;
 
-public class ProductRepository : BaseRepository, IProductRepository
+public class ProductRepository : BaseRepository<Product>, IProductRepository
 {
     private readonly DatabaseContext _context;
 

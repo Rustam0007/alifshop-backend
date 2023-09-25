@@ -16,28 +16,28 @@ public class CategoryController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<Response<IEnumerable<Category>>> GetAllCategory()
+    public IAsyncEnumerable<CategoryInfo> GetAllCategory(CancellationToken token)
     {
-        return await _categoryService.GetAllCategoryAsync();
+        return _categoryService.GetAllCategoryAsync(token);
     }
     [HttpGet("{id:int}")]
-    public async Task<Response<Category>> GetCategoryById(int id)
+    public Task<CategoryInfo> GetCategoryById(int id)
     {
-        return await _categoryService.GetCategoryByIdAsync(id);
+        return _categoryService.GetCategoryByIdAsync(id);
     }
     [HttpPost]
-    public async Task<Response<CategoryCreateRes>> InsertCategory([FromBody] CategoryCreateReq req)
+    public Task<CategoryCreateRes> InsertCategory([FromBody] CategoryCreateReq req, CancellationToken token)
     {
-        return await _categoryService.InsertCategoryAsync(req);
+        return _categoryService.InsertCategoryAsync(req, token);
     }
     [HttpPatch]
-    public async Task<Response<CategoryUpdateRes>> InsertCategory([FromBody] CategoryUpdateReq req)
+    public Task<CategoryUpdateRes> InsertCategory([FromBody] CategoryUpdateReq req, CancellationToken token)
     {
-        return await _categoryService.UpdateCategoryAsync(req);
+        return _categoryService.UpdateCategoryAsync(req, token);
     }
     [HttpDelete("{id:int}")]
-    public async Task<Response<CategoryDeleteRes>> DeleteCategory(int id)
+    public Task<CategoryDeleteRes> DeleteCategory(int id, CancellationToken token)
     {
-        return await _categoryService.DeleteCategoryAsync(id);
+        return _categoryService.DeleteCategoryAsync(id, token);
     }
 }

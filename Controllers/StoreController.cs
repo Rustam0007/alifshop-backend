@@ -17,28 +17,28 @@ public class StoreController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<Response<IEnumerable<Store>>> GetAllStore()
+    public IAsyncEnumerable<StoreInfo> GetAllStore(CancellationToken token)
     {
-        return await _storeService.GetAllStoreAsync();
+        return _storeService.GetAllStoreAsync(token);
     }
     [HttpGet("{id:int}")]
-    public async Task<Response<Store>> GetStoreById(int id)
+    public Task<StoreInfo> GetStoreById(int id, CancellationToken token)
     {
-        return await _storeService.GetStoreByIdAsync(id);
+        return _storeService.GetStoreByIdAsync(id, token);
     }
     [HttpPost]
-    public async Task<Response<StoreCreateRes>> InsertStore([FromBody] StoreCreateReq req)
+    public Task<StoreCreateRes> InsertStore([FromBody] StoreCreateReq req, CancellationToken token)
     {
-        return await _storeService.InsertStoreAsync(req);
+        return _storeService.InsertStoreAsync(req, token);
     }
     [HttpPatch]
-    public async Task<Response<StoreUpdateRes>> InsertStore([FromBody] StoreUpdateReq req)
+    public Task<StoreUpdateRes> InsertStore([FromBody] StoreUpdateReq req, CancellationToken token)
     {
-        return await _storeService.UpdateStoreAsync(req);
+        return _storeService.UpdateStoreAsync(req, token);
     }
     [HttpDelete("{id:int}")]
-    public async Task<Response<StoreDeleteRes>> DeleteStore(int id)
+    public Task<StoreDeleteRes> DeleteStore(int id, CancellationToken token)
     {
-        return await _storeService.DeleteStoreAsync(id);
+        return _storeService.DeleteStoreAsync(id, token);
     }
 }

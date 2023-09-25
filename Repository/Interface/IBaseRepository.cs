@@ -2,10 +2,10 @@
 
 namespace market_place.Repository.Interface;
 
-public interface IBaseRepository
+public interface IBaseRepository<T> where T : BaseEntity
 {
-    Task<IEnumerable<T>> GetAllAsync<T>() where T : class;
-    Task<T?> GetByIdAsync<T>(int id) where T : class;
-    Task<int> InsertAsync<T>(T entity) where T : BaseEntity;
-    Task<bool> UpdateAsync<T>(T entity) where T : class;
+    IAsyncEnumerable<T> GetAllAsync();
+    Task<T?> GetByIdAsync(int id, CancellationToken token = default);
+    Task<int> InsertAsync(T entity, CancellationToken token = default);
+    Task<bool> UpdateAsync(T entity, CancellationToken token = default);
 }

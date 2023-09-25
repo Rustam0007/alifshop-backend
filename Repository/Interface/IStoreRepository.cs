@@ -1,5 +1,7 @@
-﻿namespace market_place.Repository.Interface;
+﻿using market_place.Models;
 
-public interface IStoreRepository : IBaseRepository
+namespace market_place.Repository.Interface;
+
+public interface IStoreRepository : IBaseRepository<Store>
 {
 }

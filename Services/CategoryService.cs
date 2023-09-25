@@ -1,10 +1,10 @@
-﻿using market_place.Enums;
-using market_place.Models;
+﻿using System.Runtime.CompilerServices;
+using market_place.Extensions;
 using market_place.Models.Dto;
 using market_place.Repository;
 
 namespace market_place.Services;
-public class CategoryService
+public sealed class CategoryService
 {
     private readonly CategoryRepository _repository;
     private readonly ILogger _logger;
@@ -14,132 +14,55 @@ public class CategoryService
         _logger = loggerFactory.CreateLogger(GetType().Name);
         _repository = repository;
     }
-    public async Task<Response<IEnumerable<Category>>> GetAllCategoryAsync()
+    public async IAsyncEnumerable<CategoryInfo> GetAllCategoryAsync([EnumeratorCancellation] CancellationToken token = default)
     {
-        var response = new Response<IEnumerable<Category>>();
-        try
+        await foreach (var category in _repository.GetAllAsync())
         {
-            var categories = (await _repository.GetAllAsync<Category>()).ToList();
-            
-            response.Code = (int) Errors.Approved;
-            response.Message = Errors.Approved.GetDescription();
-            response.Payload = categories;
+            token.ThrowIfCancellationRequested();
+            yield return category.ToCategoryInfo();
         }
-        catch (Exception e)
-        {
-            response.Code = (int) Errors.InternalError;
-            response.Message = Errors.InternalError.GetDescription();
-            _logger.LogError(e, "Failed to get category");
-        }
-        return response;
     }
-    public async Task<Response<Category>> GetCategoryByIdAsync(int id)
+    public async Task<CategoryInfo> GetCategoryByIdAsync(int id, CancellationToken token = default)
     {
-        var response = new Response<Category>();
-        try
-        {
-            var category = await _repository.GetByIdAsync<Category>(id);
+        var category = await _repository.GetByIdAsync(id, token);
+        return category.ToCategoryInfo();
+    }
+    public async Task<CategoryCreateRes> InsertCategoryAsync(CategoryCreateReq req, CancellationToken token = default)
+    {
+        
+        var category = req.ToCategory();
+        
+        await _repository.InsertAsync(category, token);
 
-            if (category == null)
-            {
-                response.Code = (int) Errors.NotFound;
-                response.Message = Errors.NotFound.GetDescription();
-                return response;
-            }
-            
-            response.Code = (int) Errors.Approved;
-            response.Message = Errors.Approved.GetDescription();
-            response.Payload = new Category
-            {
-                Id = category.Id,
-                Name = category.Name
-            };
-        }
-        catch (Exception e)
+        return new ()
         {
-            response.Code = (int) Errors.InternalError;
-            response.Message = Errors.InternalError.GetDescription();
-            _logger.LogError(e, "Failed to get category");
-        }
-        return response;
+            Id = category.Id
+        };
     }
-    public async Task<Response<CategoryCreateRes>> InsertCategoryAsync(CategoryCreateReq req)
+    public async Task<CategoryUpdateRes> UpdateCategoryAsync(CategoryUpdateReq req, CancellationToken token = default)
     {
-        var response = new Response<CategoryCreateRes>();
-        try
-        {
-            var category = new Category
-            {
-                Name = req.Name,
-                IsDeleted = false
-            };
-            await _repository.InsertAsync(category);
+        
+        var category = await _repository.GetByIdAsync(req.Id, token);
+        var prevName = category.Name;
+        category.Name = req.Name;
+        await _repository.UpdateAsync(category, token);
 
-            response.Code = (int) Errors.Approved;
-            response.Message = Errors.Approved.GetDescription();
-            response.Payload = new CategoryCreateRes
-            {
-                Id = category.Id,
-                Name = category.Name
-            };
-        }
-        catch (Exception e)
+        return new()
         {
-            response.Code = (int) Errors.InternalError;
-            response.Message = Errors.InternalError.GetDescription();
-            _logger.LogError(e, "Failed to insert category");
-        }
-        return response;
+            Id = category.Id,
+            PrevName = prevName,
+            NewName = category.Name
+        };
     }
-    public async Task<Response<CategoryUpdateRes>> UpdateCategoryAsync(CategoryUpdateReq req)
+    public async Task<CategoryDeleteRes> DeleteCategoryAsync(int id, CancellationToken token = default)
     {
-        var response = new Response<CategoryUpdateRes>();
-        try
-        {
-            var category = await _repository.GetByIdAsync<Category>(req.Id);
-            var prevName = category.Name;
-            category.Name = req.Name;
-            await _repository.UpdateAsync(category);
+        var category = await _repository.GetByIdAsync(id, token);
+        category.IsDeleted = true;
+        await _repository.SaveChangesAsync(token);
 
-            response.Code = (int) Errors.Approved;
-            response.Message = Errors.Approved.GetDescription();
-            response.Payload = new CategoryUpdateRes
-            {
-                Id = category.Id,
-                PrevName = prevName,
-                NewName = category.Name
-            };
-        }
-        catch (Exception e)
+        return new()
         {
-            response.Code = (int) Errors.InternalError;
-            response.Message = Errors.InternalError.GetDescription();
-            _logger.LogError(e, "Failed to update category");
-        }
-        return response;
-    }
-    public async Task<Response<CategoryDeleteRes>> DeleteCategoryAsync(int id)
-    {
-        var response = new Response<CategoryDeleteRes>();
-        try
-        {
-            var category = await _repository.GetByIdAsync<Category>(id);
-            category.IsDeleted = true;
-            await _repository.SaveChangesAsync();
-            
-            response.Code = (int) Errors.Approved;
-            response.Message = Errors.Approved.GetDescription();
-            response.Payload = new CategoryDeleteRes
-            {
-                Id = category.Id,
-            };
-        }
-        catch (Exception e)
-        {
-            response.Code = (int) Errors.InternalError;
-            response.Message = Errors.InternalError.GetDescription();
-            _logger.LogError(e, "Failed to delete category");
-        }
-        return response;
+            Id = category.Id,
+        };
     }
 }

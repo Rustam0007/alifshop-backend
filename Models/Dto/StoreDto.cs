@@ -1,38 +1,16 @@
 ﻿namespace market_place.Models.Dto;
 
-public sealed class StoreCreateReq
-{
-    public string Name { get; set; }
-    public double Latitude { get; set; }
-    public double Longitude { get; set; }
-    public string PhoneNumber { get; set; }
-    public string Description { get; set; }
-    public string Image { get; set; }
-}
+public readonly record struct StoreInfo(
+    double Latitude, double Longitude, string Name, string PhoneNumber, string Image, 
+    string Description, bool IsDeleted);
 
-public sealed class StoreCreateRes
-{
-    public int Id { get; set; }
-}
+public readonly record struct StoreCreateReq(double Latitude, double Longitude, string Name, string PhoneNumber,
+    string Image, string Description);
 
-public sealed class StoreUpdateReq
-{
-    public int Id { get; set; }
-    public string Name { get; set; }
-    public double Latitude { get; set; }
-    public double Longitude { get; set; }
-    public string PhoneNumber { get; set; }
-    public string Description { get; set; }
-    public string Image { get; set; }
+public readonly record struct StoreCreateRes(int Id);
 
-}
+public readonly record struct StoreUpdateReq(int Id, double Latitude, double Longitude, string Name, string PhoneNumber,
+    string Image, string Description);
 
-public sealed class StoreUpdateRes
-{
-    public int Id { get; set; }
-}
-
-public sealed class StoreDeleteRes
-{
-    public int Id { get; set; }
-}
+public readonly record struct StoreUpdateRes(int Id, string PrevName, string NewName);
+public readonly record struct StoreDeleteRes(int Id);
